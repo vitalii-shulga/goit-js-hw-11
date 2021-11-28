@@ -1,18 +1,21 @@
 import './css/styles.css'
 import { fetchImages } from './js/fetch-images'
 import { renderGallery } from './js/render-gallery'
+import { onScroll, onToTopBtn } from './js/scroll'
 import Notiflix from 'notiflix'
 
 const searchForm = document.querySelector('#search-form')
 const gallery = document.querySelector('.gallery')
-const loadMoreBtn = document.querySelector('.load-more')
+const loadMoreBtn = document.querySelector('.btn-load-more')
+let query = ''
+let page = 1
+const perPage = 40
 
 searchForm.addEventListener('submit', onSearchForm)
 loadMoreBtn.addEventListener('click', onLoadMoreBtn)
 
-let query = ''
-let page = 1
-const perPage = 40
+onScroll()
+onToTopBtn()
 
 function onSearchForm(e) {
   e.preventDefault()
@@ -35,6 +38,7 @@ function onSearchForm(e) {
       } else {
         renderGallery(data.hits)
         Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`)
+
         if (data.totalHits > perPage) {
           loadMoreBtn.classList.remove('is-hidden')
         }
