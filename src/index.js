@@ -48,8 +48,9 @@ function onLoadMoreBtn() {
 
   fetchImages(query, page, perPage)
     .then(({ data }) => {
-      const totalPages = Math.ceil(data.totalHits / perPage)
       renderGallery(data.hits)
+
+      const totalPages = Math.ceil(data.totalHits / perPage)
 
       if (page > totalPages) {
         loadMoreBtn.classList.add('is-hidden')
