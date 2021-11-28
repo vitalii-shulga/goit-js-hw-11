@@ -18,6 +18,8 @@ function onSearchForm(e) {
   e.preventDefault()
   page = 1
   query = e.currentTarget.searchQuery.value.trim()
+  gallery.innerHTML = ''
+  loadMoreBtn.classList.add('is-hidden')
 
   if (query === '') {
     alertNoEmptySearch()
@@ -26,20 +28,16 @@ function onSearchForm(e) {
 
   fetchImages(query, page, perPage)
     .then(({ data }) => {
-      gallery.innerHTML = ''
       window.scrollTo({ top: 0 })
 
       if (data.totalHits === 0) {
-        loadMoreBtn.classList.add('is-hidden')
         alertNoImageMatching()
       } else {
         renderGallery(data.hits)
-
+        Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`)
         if (data.totalHits > perPage) {
           loadMoreBtn.classList.remove('is-hidden')
         }
-
-        Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`)
       }
     })
     .catch(error => console.log(error))
@@ -62,7 +60,7 @@ function onLoadMoreBtn() {
 }
 
 function alertNoEmptySearch() {
-  Notiflix.Notify.warning('The search string cannot be empty. Please specify your search query.')
+  Notiflix.Notify.failure('The search string cannot be empty. Please specify your search query.')
 }
 
 function alertNoImageMatching() {
