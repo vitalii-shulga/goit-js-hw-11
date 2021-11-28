@@ -1,5 +1,6 @@
 import './css/styles.css'
 import { fetchImages } from './js/fetch-images'
+import { renderImageMarkup } from './js/render-image-markup'
 import SimpleLightbox from 'simplelightbox'
 import 'simplelightbox/dist/simple-lightbox.min.css'
 import Notiflix from 'notiflix'
@@ -26,14 +27,15 @@ function onSearchForm(e) {
   }
 
   fetchImages(query, page, perPage)
-    .then(data => {
+    .then(({ data }) => {
       gallery.innerHTML = ''
 
-      if (data.totalHits === 0) {
+      if (data.hits.length === 0) {
         loadMoreBtn.classList.add('is-hidden')
         alertNoImageMatching()
       } else {
-        renderImageCard(data)
+        gallery.insertAdjacentHTML('beforeend', renderImageMarkup(data.hits))
+        addSimpleLightbox()
 
         if (data.totalHits > perPage) {
           loadMoreBtn.classList.remove('is-hidden')
@@ -49,9 +51,10 @@ function onLoadMoreBtn() {
   page += 1
 
   fetchImages(query, page, perPage)
-    .then(data => {
+    .then(({ data }) => {
       const totalPages = Math.ceil(data.totalHits / perPage)
-      renderImageCard(data)
+      gallery.insertAdjacentHTML('beforeend', renderImageMarkup(data.hits))
+      addSimpleLightbox()
 
       if (page > totalPages) {
         loadMoreBtn.classList.add('is-hidden')
@@ -59,29 +62,6 @@ function onLoadMoreBtn() {
       }
     })
     .catch(error => console.log(error))
-}
-
-function renderImageCard(data) {
-  const markup = data.hits
-    .map(
-      ({ id, webformatURL, largeImageURL, tags, likes, views, comments, downloads }) =>
-        `
-        <a class="gallery__link" href="${webformatURL}">
-          <div class="gallery-item" id="${id}">
-            <img class="gallery-item__img" src="${largeImageURL}" alt="${tags}" loading="lazy" />
-            <div class="info">
-              <p class="info-item"><b>Likes</b>${likes}</p>
-              <p class="info-item"><b>Views</b>${views}</p>
-              <p class="info-item"><b>Comments</b>${comments}</p>
-              <p class="info-item"><b>Downloads</b>${downloads}</p>
-            </div>
-          </div>
-        </a>
-      `,
-    )
-    .join('')
-  gallery.insertAdjacentHTML('beforeend', markup)
-  addSimpleLightbox()
 }
 
 function addSimpleLightbox() {
