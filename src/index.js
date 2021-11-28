@@ -1,8 +1,6 @@
 import './css/styles.css'
 import { fetchImages } from './js/fetch-images'
-import { renderImageMarkup } from './js/render-image-markup'
-import SimpleLightbox from 'simplelightbox'
-import 'simplelightbox/dist/simple-lightbox.min.css'
+import { renderGallery } from './js/render-gallery'
 import Notiflix from 'notiflix'
 
 const searchForm = document.querySelector('#search-form')
@@ -29,13 +27,13 @@ function onSearchForm(e) {
   fetchImages(query, page, perPage)
     .then(({ data }) => {
       gallery.innerHTML = ''
+      window.scrollTo({ top: 0 })
 
-      if (data.hits.length === 0) {
+      if (data.totalHits === 0) {
         loadMoreBtn.classList.add('is-hidden')
         alertNoImageMatching()
       } else {
-        gallery.insertAdjacentHTML('beforeend', renderImageMarkup(data.hits))
-        addSimpleLightbox()
+        renderGallery(data.hits)
 
         if (data.totalHits > perPage) {
           loadMoreBtn.classList.remove('is-hidden')
@@ -53,8 +51,7 @@ function onLoadMoreBtn() {
   fetchImages(query, page, perPage)
     .then(({ data }) => {
       const totalPages = Math.ceil(data.totalHits / perPage)
-      gallery.insertAdjacentHTML('beforeend', renderImageMarkup(data.hits))
-      addSimpleLightbox()
+      renderGallery(data.hits)
 
       if (page > totalPages) {
         loadMoreBtn.classList.add('is-hidden')
@@ -64,12 +61,8 @@ function onLoadMoreBtn() {
     .catch(error => console.log(error))
 }
 
-function addSimpleLightbox() {
-  new SimpleLightbox('.gallery a').refresh()
-}
-
 function alertNoEmptySearch() {
-  Notiflix.Notify.failure('The search string cannot be empty. Please specify your search query.')
+  Notiflix.Notify.warning('The search string cannot be empty. Please specify your search query.')
 }
 
 function alertNoImageMatching() {
