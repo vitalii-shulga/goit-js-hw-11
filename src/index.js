@@ -3,12 +3,15 @@ import { fetchImages } from './js/fetch-images'
 import { renderGallery } from './js/render-gallery'
 import { onScroll, onToTopBtn } from './js/scroll'
 import Notiflix from 'notiflix'
+import SimpleLightbox from 'simplelightbox'
+import 'simplelightbox/dist/simple-lightbox.min.css'
 
 const searchForm = document.querySelector('#search-form')
 const gallery = document.querySelector('.gallery')
 const loadMoreBtn = document.querySelector('.btn-load-more')
 let query = ''
 let page = 1
+let simpleLightBox
 const perPage = 40
 
 searchForm.addEventListener('submit', onSearchForm)
@@ -19,6 +22,7 @@ onToTopBtn()
 
 function onSearchForm(e) {
   e.preventDefault()
+  window.scrollTo({ top: 0 })
   page = 1
   query = e.currentTarget.searchQuery.value.trim()
   gallery.innerHTML = ''
@@ -31,13 +35,12 @@ function onSearchForm(e) {
 
   fetchImages(query, page, perPage)
     .then(({ data }) => {
-      window.scrollTo({ top: 0 })
-
       if (data.totalHits === 0) {
-        alertNoImageMatching()
+        alertNoImagesFound()
       } else {
         renderGallery(data.hits)
-        Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`)
+        simpleLightBox = new SimpleLightbox('.gallery a').refresh()
+        alertImagesFound(data)
 
         if (data.totalHits > perPage) {
           loadMoreBtn.classList.remove('is-hidden')
@@ -49,10 +52,12 @@ function onSearchForm(e) {
 
 function onLoadMoreBtn() {
   page += 1
+  simpleLightBox.destroy()
 
   fetchImages(query, page, perPage)
     .then(({ data }) => {
       renderGallery(data.hits)
+      simpleLightBox = new SimpleLightbox('.gallery a').refresh()
 
       const totalPages = Math.ceil(data.totalHits / perPage)
 
@@ -64,11 +69,15 @@ function onLoadMoreBtn() {
     .catch(error => console.log(error))
 }
 
+function alertImagesFound(data) {
+  Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`)
+}
+
 function alertNoEmptySearch() {
   Notiflix.Notify.failure('The search string cannot be empty. Please specify your search query.')
 }
 
-function alertNoImageMatching() {
+function alertNoImagesFound() {
   Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please try again.')
 }
 

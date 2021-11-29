@@ -67,6 +67,7 @@ p {
 .gallery-container {
   padding-left: 15px;
   padding-right: 15px;
+  padding-bottom: 25px;
 
   @media screen and (min-width: 480px) {
     width: 480px;
@@ -145,7 +146,7 @@ p {
 
 .btn-load-more {
   display: block;
-  margin: 25px auto;
+  margin: 25px auto 0 auto;
   padding: 8px 20px;
   border: none;
   border-radius: 5px;

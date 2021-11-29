@@ -1,8 +1,7 @@
-import SimpleLightbox from 'simplelightbox'
-import 'simplelightbox/dist/simple-lightbox.min.css'
 export { renderGallery }
 
 const gallery = document.querySelector('.gallery')
+const galleryEl = document.querySelector('.gallery .a')
 
 function renderGallery(images) {
   const markup = images
@@ -25,9 +24,4 @@ function renderGallery(images) {
     .join('')
 
   gallery.insertAdjacentHTML('beforeend', markup)
-  addSimpleLightbox()
-}
-
-function addSimpleLightbox() {
-  new SimpleLightbox('.gallery a').refresh()
 }
